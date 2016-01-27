@@ -12,12 +12,13 @@ CREATE TABLE file (
 ALTER TABLE file ADD CONSTRAINT file_pkey PRIMARY KEY (ufn);
 
 CREATE TABLE file_block (
-    file    VARCHAR(64) NOT NULL,
-    id      INTEGER NOT NULL,
-    crcsum  VARCHAR(64)
+    file        VARCHAR(64) NOT NULL,
+    id          INTEGER NOT NULL,
+    crcsum      VARCHAR(64) NOT NULL,
+    compressed  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-ALTER TABLE file_block ADD CONSTRAINT file_block_pkey PRIMARY KEY (file);
+ALTER TABLE file_block ADD CONSTRAINT file_block_pkey PRIMARY KEY (file,id);
 ALTER TABLE file_block ADD CONSTRAINT file_block_fk FOREIGN KEY
     (file) REFERENCES file (ufn) ON DELETE CASCADE ON UPDATE CASCADE;
 
