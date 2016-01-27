@@ -5,15 +5,6 @@ use Dancer2::Plugin::DBIC qw(rset);
 our $VERSION = '0.1';
 use Data::Dumper;
 
-set environment => "production";
-set public_dir  => "";
-set views       => "";
-set template    => "Tiny";
-set layout      => "";
-set layout_dir  => "";
-set show_errors => "";
-set serializer  => 'JSON';
-
 set plugins => {
     DBIC => {
         default => {
@@ -25,9 +16,26 @@ set plugins => {
     }
 };
 
-get '/' => sub {
+set engines => {
+    serializer => {
+        JSON => {
+            convert_blessed => '1'
+        }
+    }
+};
+
+set environment => "production";
+set public_dir  => "";
+set views       => "";
+set template    => "Tiny";
+set layout      => "";
+set layout_dir  => "";
+set show_errors => "";
+set serializer => 'JSON';
+
+
+get '/'        => sub {
     my @files = rset('File')->all();
-warn "size: " scalar @files ."\n";
     return { error => 1, files => [ @files ] };
 };
 
