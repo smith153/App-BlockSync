@@ -31,27 +31,44 @@ set template    => "Tiny";
 set layout      => "";
 set layout_dir  => "";
 set show_errors => "";
-set serializer => 'JSON';
+set serializer  => 'JSON';
 
-
-get '/'        => sub {
+get '/' => sub {
     my @files = rset('File')->all();
     return { error => 1, files => [ @files ] };
 };
 
 get '/block-map/:ufn' => sub {
     my $ufn = params->{ufn};
+    my $rs =
+      rset('File')->search( { ufn => $ufn }, { prefetch => 'file_block' }, )
+      ->next();
+
+    return $rs;
 
 };
 
 get '/block/:ufn/:id' => sub {
     my $ufn      = params->{ufn};
     my $block_id = params->{id};
+
+    my $rs =
+      rset('FileBlock')->search( { file => $ufn, id => $block_id } )->next();
+
+    return $rs;
 };
 
 post '/new' => sub {
     my $json = request->data;
     warn Dumper $json;
+    my $rs;
+    eval { rset('File')->create($json); };
+    if ($@) {
+        warn $@;
+        return { success => 0, error => ( split( /\n/, $@ ) )[ 0 ] };
+    } else {
+        return { success => 1, error => 0 };
+    }
 
 };
 
