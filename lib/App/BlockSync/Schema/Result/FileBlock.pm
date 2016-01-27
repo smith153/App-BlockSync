@@ -31,7 +31,6 @@ __PACKAGE__->table("file_block");
 =head2 file
 
   data_type: 'varchar'
-  is_foreign_key: 1
   is_nullable: 0
   size: 64
 
@@ -43,18 +42,26 @@ __PACKAGE__->table("file_block");
 =head2 crcsum
 
   data_type: 'varchar'
-  is_nullable: 1
+  is_nullable: 0
   size: 64
+
+=head2 compressed
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
 
 =cut
 
 __PACKAGE__->add_columns(
   "file",
-  { data_type => "varchar", is_foreign_key => 1, is_nullable => 0, size => 64 },
+  { data_type => "varchar", is_nullable => 0, size => 64 },
   "id",
   { data_type => "integer", is_nullable => 0 },
   "crcsum",
-  { data_type => "varchar", is_nullable => 1, size => 64 },
+  { data_type => "varchar", is_nullable => 0, size => 64 },
+  "compressed",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -63,32 +70,17 @@ __PACKAGE__->add_columns(
 
 =item * L</file>
 
+=item * L</id>
+
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("file");
-
-=head1 RELATIONS
-
-=head2 file
-
-Type: belongs_to
-
-Related object: L<App::BlockSync::Schema::Result::File>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "file",
-  "App::BlockSync::Schema::Result::File",
-  { ufn => "file" },
-  { is_deferrable => 0, on_delete => "CASCADE", on_update => "CASCADE" },
-);
+__PACKAGE__->set_primary_key("file", "id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-26 21:04:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:S4eWUuY1aE0z7gN3jdoVSQ
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-27 08:42:31
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9VIpgrz+CIwJwUroS/ATLw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

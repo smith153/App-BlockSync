@@ -98,26 +98,9 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("ufn");
 
-=head1 RELATIONS
 
-=head2 file_block
-
-Type: might_have
-
-Related object: L<App::BlockSync::Schema::Result::FileBlock>
-
-=cut
-
-__PACKAGE__->might_have(
-  "file_block",
-  "App::BlockSync::Schema::Result::FileBlock",
-  { "foreign.file" => "self.ufn" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-26 21:04:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rRiWK8pYxJlfkz9S4v+R3A
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-27 08:42:31
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3IS3KuWslthXm9lVeADi+A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
