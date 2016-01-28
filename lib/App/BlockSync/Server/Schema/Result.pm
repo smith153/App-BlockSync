@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-package App::BlockSync::Schema::Result;
+package App::BlockSync::Server::Schema::Result;
 
 use base 'DBIx::Class::Core';
 

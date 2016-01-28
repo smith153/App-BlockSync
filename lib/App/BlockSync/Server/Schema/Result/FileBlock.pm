@@ -1,12 +1,12 @@
 use utf8;
-package App::BlockSync::Schema::Result::FileBlock;
+package App::BlockSync::Server::Schema::Result::FileBlock;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-App::BlockSync::Schema::Result::FileBlock
+App::BlockSync::Server::Schema::Result::FileBlock
 
 =cut
 
@@ -14,11 +14,11 @@ use strict;
 use warnings;
 
 
-=head1 BASE CLASS: L<App::BlockSync::Schema::Result>
+=head1 BASE CLASS: L<App::BlockSync::Server::Schema::Result>
 
 =cut
 
-use base 'App::BlockSync::Schema::Result';
+use base 'App::BlockSync::Server::Schema::Result';
 
 =head1 TABLE: C<file_block>
 
@@ -79,8 +79,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("file", "id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-27 08:42:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9VIpgrz+CIwJwUroS/ATLw
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-28 09:32:04
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:u02IbugKXnoa0RcMJWBViw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

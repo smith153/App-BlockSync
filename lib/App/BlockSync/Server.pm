@@ -8,7 +8,7 @@ use Data::Dumper;
 set plugins => {
     DBIC => {
         default => {
-            schema_class => "App::BlockSync::Schema",
+            schema_class => "App::BlockSync::Server::Schema",
             dsn          => "dbi:Pg:dbname=$ENV{BS_DB}",
             user         => $ENV{BS_USER},
             password     => $ENV{BS_PASS},
