@@ -98,9 +98,26 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("ufn");
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-28 09:32:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wULxx2oOCds0bg+ZmoRWEg
+=head2 file_blocks
+
+Type: has_many
+
+Related object: L<App::BlockSync::Server::Schema::Result::FileBlock>
+
+=cut
+
+__PACKAGE__->has_many(
+  "file_blocks",
+  "App::BlockSync::Server::Schema::Result::FileBlock",
+  { "foreign.file" => "self.ufn" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-28 20:43:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7TAIesyCn+2ZSAM6h8toHw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
