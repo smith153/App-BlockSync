@@ -1,4 +1,6 @@
 
+DROP TABLE IF EXISTS file CASCADE;
+
 CREATE TABLE file (
     ufn         VARCHAR(64) NOT NULL,
     uhn         VARCHAR(64) NOT NULL,
@@ -10,6 +12,9 @@ CREATE TABLE file (
 );
 
 ALTER TABLE file ADD CONSTRAINT file_pkey PRIMARY KEY (ufn);
+
+
+DROP TABLE IF EXISTS file_block CASCADE;
 
 CREATE TABLE file_block (
     file        VARCHAR(64) NOT NULL,
