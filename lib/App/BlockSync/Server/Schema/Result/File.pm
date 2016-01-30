@@ -62,9 +62,20 @@ __PACKAGE__->table("file");
   is_nullable: 0
   size: 64
 
+=head2 mod_time
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 block_size
 
   data_type: 'integer'
+  is_nullable: 0
+
+=head2 compressed
+
+  data_type: 'boolean'
+  default_value: false
   is_nullable: 0
 
 =cut
@@ -82,8 +93,12 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "crcsum",
   { data_type => "varchar", is_nullable => 0, size => 64 },
+  "mod_time",
+  { data_type => "integer", is_nullable => 0 },
   "block_size",
   { data_type => "integer", is_nullable => 0 },
+  "compressed",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -116,8 +131,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-28 20:43:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7TAIesyCn+2ZSAM6h8toHw
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-01-30 15:48:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uvbqVfYQZQJwbAZd9ajnhw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
