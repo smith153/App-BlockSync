@@ -31,7 +31,8 @@ set engines => {
 };
 
 set environment => "production";
-set public_dir  => "";
+
+#set public_dir  => "";
 set views       => "";
 set template    => "Tiny";
 set layout      => "";
@@ -66,7 +67,6 @@ get '/block/:ufn/:id' => sub {
 
 post '/new' => sub {
     my $json = request->data;
-    warn Dumper $json;
     my $rs;
     my $path;
     my $compressed = ( exists $json->{compressed} && $json->{compressed} );
@@ -83,9 +83,10 @@ post '/new' => sub {
             my $seek = $block->{id} * $block_size;
             write_block( $seek, $block, $compressed, $path );
 
-            delete $json->{data};    #don't store to DB
+            delete $block->{data};    #don't store to DB
         }
 
+        warn Dumper $json;
         rset('File')->create($json);
     };
 
@@ -106,19 +107,21 @@ post '/block' => sub {
 
 sub create_file_path {
     my ( $hostname, $uhn, $path, $filename ) = @_;
-    my $full_path = $ENV{BS_DATADIR} . "/$hostname-$uhn/$path/$filename";
+    my $full_path = $ENV{BS_DATADIR} . "/$hostname-$uhn/$path";
     $full_path =~ s/[^\w\/\.]+/_/g;
 
-    if(not -f $full_path){
-        make_path($full_path) or die "Couldn't make path $full_path $!\n";
+    if ( not -d $full_path ) {
+        make_path($full_path);
+        die "Couldn't make path $full_path $!\n" if ( not -d $full_path );
     }
+    $full_path .= "/$filename";
+    return $full_path;
 }
 
 sub write_block {
     my ( $seek, $block, $compressed, $path ) = @_;
-    $fh = IO::File->new("> $path");
-    binmode($fh);
-    $fh->setpos($seek);
+    my $fh = IO::File->new("> $path");
+    $fh->binmode();
 
     $block->{data} = decode_base64( $block->{data} );
 
@@ -126,9 +129,10 @@ sub write_block {
         $block->{data} = uncompress( $block->{data} );
     }
 
-    print $fh $block->{data};
+    $fh->setpos($seek);
+    $fh->write( $block->{data} );
 
-    close($fh);
+    $fh->close();
 }
 
 1;
