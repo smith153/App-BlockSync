@@ -2,11 +2,14 @@ package App::BlockSync::Server;
 use Dancer2;
 use Dancer2::Plugin::DBIC qw(rset);
 use IO::File;
-use Compress::Zlib qw(compress uncompress);
+use Compress::Zlib qw(uncompress);
 use MIME::Base64 qw ( encode_base64 decode_base64);
+use File::Path qw(make_path);
 
 our $VERSION = '0.1';
 use Data::Dumper;
+
+$ENV{BS_DATADIR} //= "public/data";
 
 set plugins => {
     DBIC => {
@@ -70,7 +73,10 @@ post '/new' => sub {
     my $block_size = $json->{block_size};
 
     eval {
-        $path = create_file_path($json);
+        $path = create_file_path(
+            $json->{hostname}, $json->{uhn},
+            $json->{path},     $json->{filename}
+        );
 
         foreach my $block ( @{ $json->{file_blocks} } ) {
 
@@ -97,6 +103,16 @@ post '/block' => sub {
     warn Dumper $json;
 
 };
+
+sub create_file_path {
+    my ( $hostname, $uhn, $path, $filename ) = @_;
+    my $full_path = $ENV{BS_DATADIR} . "/$hostname-$uhn/$path/$filename";
+    $full_path =~ s/[^\w\/\.]+/_/g;
+
+    if(not -f $full_path){
+        make_path($full_path) or die "Couldn't make path $full_path $!\n";
+    }
+}
 
 sub write_block {
     my ( $seek, $block, $compressed, $path ) = @_;
