@@ -7,7 +7,7 @@ use HTTP::Request::Common;
 use Dancer2;
 use Dancer2::Plugin::DBIC qw(rset);
 use HTTP::Request::Common;
-use Compress::Zlib qw ( gzopen compress);
+use Compress::Zlib qw ( compress);
 use Digest::MD5 qw(md5_hex);
 use MIME::Base64 qw ( encode_base64);
 use IO::File;
@@ -60,19 +60,9 @@ my $test_file = {
     file_blocks => [],
 };
 
-open( $fh, ">t/data/test.wav" )
-  or die "Couldn't open test.wav for writing $!\n";
-my $gz = gzopen( "t/data/test.wav.gz", "rb" )
-  or die "Cannot open test.wav.gz $!\n";
 
-while ( $gz->gzread($data) > 0 ) {
-
-    print $fh $data;
-    $md5->add($data);
-
-}
-
-$gz->gzclose();
+open($fh, "<t/data/test.wav");
+$md5->addfile($fh);
 close($fh);
 
 cmp_ok(
@@ -99,7 +89,6 @@ while ( $fh->read( $data, $size, $size * $i ) ) {   #read ( BUF, LEN, [OFFSET] )
 
 }
 
-unlink("t/data/test.wav") if ( -f "t/data/test.wav" );
 
 my $res = $test->request(
     POST '/new',
