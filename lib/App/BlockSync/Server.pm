@@ -65,6 +65,29 @@ get '/block/:ufn/:id' => sub {
     return $rs;
 };
 
+get '/delete/:ufn' => sub {
+    my $ufn = params->{ufn};
+    my $rs = rset('File')->search( { ufn => $ufn } )->next();
+    my $path;
+
+    return { success => 0, error => "Ufn not found" } unless $rs;
+
+    eval {
+        $path =
+          create_file_path( $rs->hostname, $rs->uhn, $rs->path, $rs->filename );
+        $rs->delete();
+        unlink($path);
+    };
+
+    if ($@) {
+        warn $@;
+        return { success => 0, error => ( split( /\n/, $@ ) )[ 0 ] };
+    } else {
+        return { success => 1, error => 0 };
+    }
+
+};
+
 post '/new' => sub {
     my $json = request->data;
     my $rs;
