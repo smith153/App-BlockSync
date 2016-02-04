@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 5;
 use Plack::Test;
 use HTTP::Request::Common;
 use Dancer2;
@@ -46,6 +46,8 @@ is( ref $app, 'CODE', 'Got app' );
 my $test = Plack::Test->create($app);
 my $fh;
 my $data;
+my $res;
+my $json;
 my $md5       = Digest::MD5->new();
 my $test_file = {
     ufn         => '1f098e9',
@@ -60,15 +62,14 @@ my $test_file = {
     file_blocks => [],
 };
 
-
-open($fh, "<t/data/test.wav");
+open( $fh, "<t/data/test.wav" );
 $md5->addfile($fh);
 close($fh);
 
 cmp_ok(
     $md5->hexdigest(), "eq",
     "2c79c8cae98ea3ac7dc31f098e9f2da1",
-    "Uncompress md5sum is correct"
+    "md5sum is correct"
 );
 
 $fh = IO::File->new("< t/data/test.wav");
@@ -89,13 +90,21 @@ while ( $fh->read( $data, $size, $size * $i ) ) {   #read ( BUF, LEN, [OFFSET] )
 
 }
 
-
-my $res = $test->request(
+$res = $test->request(
     POST '/new',
     Content_Type => 'application/json',
     Content      => to_json($test_file)
 );
 
-my $json = from_json( $res->content );
+$json = from_json( $res->content );
 
-warn $json->{error};
+ok( !$json->{error}, "Post new file should have success" );
+
+$res  = $test->request( GET "/delete/$test_file->{ufn}" );
+$json = from_json( $res->content );
+ok( !$json->{error}, "Delete should not error" );
+
+$res  = $test->request( GET "/delete/fake-ufn" );
+$json = from_json( $res->content );
+ok( $json->{error}, "Delete should error" );
+
