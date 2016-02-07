@@ -62,6 +62,11 @@ __PACKAGE__->table("file");
   is_nullable: 0
   size: 64
 
+=head2 file_size
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 mod_time
 
   data_type: 'integer'
@@ -93,6 +98,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "crcsum",
   { data_type => "varchar", is_nullable => 0, size => 64 },
+  "file_size",
+  { data_type => "integer", is_nullable => 0 },
   "mod_time",
   { data_type => "integer", is_nullable => 0 },
   "block_size",
@@ -131,8 +138,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-02-05 15:51:13
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:a9HQITdqWawqZNaq8z+RFg
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-02-07 17:41:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:12cWkrQGf4ky22hRZdwKZA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

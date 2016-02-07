@@ -39,6 +39,7 @@ our $test_file = {
     path        => 't/data',
     filename    => 'test.wav',
     crcsum      => '2c79c8cae98ea3ac7dc31f098e9f2da1',
+    file_size   => 31192,
     mod_time    => 1354186306,
     block_size  => '2048',                               #2KB
     compressed  => 1,

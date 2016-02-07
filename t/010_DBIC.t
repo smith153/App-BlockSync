@@ -44,6 +44,7 @@ my $test_file = {
     path       => 'test/path',
     filename   => 'testfile',
     crcsum     => '1234asb',
+    file_size  => 2048,
     mod_time   => 1354186306,
     block_size => '32000',
 };

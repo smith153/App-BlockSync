@@ -8,6 +8,7 @@ CREATE TABLE file (
     path        TEXT NOT NULL,
     filename    TEXT NOT NULL,
     crcsum      VARCHAR(64) NOT NULL,
+    file_size   INTEGER NOT NULL,
     mod_time    INTEGER NOT NULL,
     block_size  INTEGER NOT NULL,
     compressed  BOOLEAN NOT NULL DEFAULT FALSE
