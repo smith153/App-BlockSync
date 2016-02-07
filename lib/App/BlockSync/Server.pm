@@ -25,7 +25,7 @@ set plugins => {
 set engines => {
     serializer => {
         JSON => {
-            convert_blessed => '1'
+            convert_blessed => '1',
         }
     }
 };
@@ -47,9 +47,14 @@ get '/' => sub {
 
 get '/block-map/:ufn' => sub {
     my $ufn = params->{ufn};
-    my $rs =
-      rset('File')->search( { ufn => $ufn }, { prefetch => 'file_block' }, )
-      ->next();
+    my $rs  = rset('File')->search(
+        { ufn => $ufn },
+        {
+            prefetch     => 'file_blocks',
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+
+        },
+    )->next();
 
     return $rs;
 
@@ -59,10 +64,14 @@ get '/block/:ufn/:id' => sub {
     my $ufn      = params->{ufn};
     my $block_id = params->{id};
 
-    my $rs =
-      rset('FileBlock')->search( { file => $ufn, id => $block_id } )->next();
+    my $rs = rset('FileBlock')->search(
+        { 'me.file' => $ufn, id => $block_id },
+        {
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+        }
+    )->next();
 
-    return $rs;
+    return $rs || { error => 1 };
 };
 
 get '/delete/:ufn' => sub {
@@ -109,7 +118,7 @@ post '/new' => sub {
             delete $block->{data};    #don't store to DB
         }
 
-        warn Dumper $json;
+        #warn Dumper $json;
         rset('File')->create($json);
     };
 
@@ -128,7 +137,8 @@ post '/block' => sub {
 
 };
 
-sub create_file_path {
+sub create_file_path
+{
     my ( $hostname, $uhn, $path, $filename ) = @_;
     my $full_path = $ENV{BS_DATADIR} . "/$hostname-$uhn/$path";
     $full_path =~ s/[^\w\/\.]+/_/g;
@@ -141,7 +151,8 @@ sub create_file_path {
     return $full_path;
 }
 
-sub write_block {
+sub write_block
+{
     my ( $seek, $block, $compressed, $path ) = @_;
     my $fh = IO::File->new("> $path");
     $fh->binmode();
