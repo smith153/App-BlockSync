@@ -44,12 +44,12 @@ my $test_file = {
     path       => 'test/path',
     filename   => 'testfile',
     crcsum     => '1234asb',
+    mod_time   => 1354186306,
     block_size => '32000',
 };
 
-cmp_ok( rset('File')->count(), '==', 0, "0 rows in ew deployment" );
+cmp_ok( rset('File')->count(), '==', 0, "0 rows in new deployment" );
 
-ok rset('File')->create( $test_file ), "Created Test file entry";
-cmp_ok( [ rset('File')->all() ]->[ 0 ]->ufn(),
-    'eq', 'test', "ufn is 'test'" );
+ok rset('File')->create($test_file), "Created Test file entry";
+cmp_ok( [ rset('File')->all() ]->[0]->ufn(), 'eq', 'test', "ufn is 'test'" );
 
