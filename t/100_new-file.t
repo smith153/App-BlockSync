@@ -1,16 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
-use Plack::Test;
+use Test::More tests => 6;
+use lib 't/lib';
 use HTTP::Request::Common;
-use Dancer2;
-use Dancer2::Plugin::DBIC qw(rset);
-use HTTP::Request::Common;
-use Compress::Zlib qw ( compress);
-use Digest::MD5 qw(md5_hex);
-use MIME::Base64 qw ( encode_base64);
-use IO::File;
+use Test::App::BlockSync::Server;
+use JSON;
 
 =head1 100_new-file
 
@@ -18,93 +13,38 @@ use IO::File;
 
 =cut
 
-BEGIN {
-    eval { require DBD::SQLite };
-    plan skip_all => 'DBD::SQLite required to run these tests' if $@;
-
-    my $dbic = {
-        DBIC => {
-            default => {
-                schema_class => "App::BlockSync::Server::Schema",
-                dsn          => "dbi:SQLite:dbname=:memory:",
-            },
-        }
-    };
-
-    #override config.yml
-    set plugins => $dbic;
-    schema->deploy;
-
-}
-
-######################## MAIN ###########################
-
-use App::BlockSync::Server;
-
-my $app = App::BlockSync::Server->to_app;
-is( ref $app, 'CODE', 'Got app' );
-my $test = Plack::Test->create($app);
-my $fh;
-my $data;
 my $res;
 my $json;
-my $md5       = Digest::MD5->new();
-my $test_file = {
-    ufn         => '1f098e9',
-    uhn         => 'e98ea',
-    hostname    => 'testhost',
-    path        => 't/data',
-    filename    => 'test.wav',
-    crcsum      => '2c79c8cae98ea3ac7dc31f098e9f2da1',
-    mod_time    => 1354186306,
-    block_size  => '2048',                               #2KB
-    compressed  => 1,
-    file_blocks => [],
-};
+my $test_obj = Test::App::BlockSync::Server->new();
+ok( $test_obj, "Got test object" );
 
-open( $fh, "<t/data/test.wav" );
-$md5->addfile($fh);
-close($fh);
+my $test_app = $test_obj->populated_app();
+ok( $test_app, "Got test app" );
 
-cmp_ok(
-    $md5->hexdigest(), "eq",
-    "2c79c8cae98ea3ac7dc31f098e9f2da1",
-    "md5sum is correct"
-);
+my $test_file = $test_obj->test_file();
 
-$fh = IO::File->new("< t/data/test.wav");
-$fh->binmode();
-
-my $i    = 0;
-my $size = $test_file->{block_size};
-
-while ( $fh->read( $data, $size, $size * $i ) ) {   #read ( BUF, LEN, [OFFSET] )
-    my $block = {
-        file   => $test_file->{ufn},
-        id     => $i++,
-        crcsum => md5_hex($data),
-        data   => encode_base64( compress( $data, 1 ) ),
-    };
-
-    push( @{ $test_file->{file_blocks} }, $block );
-
-}
-
-$res = $test->request(
-    POST '/new',
-    Content_Type => 'application/json',
-    Content      => to_json($test_file)
-);
-
+$res  = $test_app->request( GET "/block-map/$test_file->{ufn}" );
 $json = from_json( $res->content );
+cmp_ok(
+    $json->{file_blocks}[2]{crcsum},
+    'eq',
+    $test_file->{file_blocks}[2]{crcsum},
+    "Block should have same sum"
+);
 
-ok( !$json->{error}, "Post new file should have success" );
+$res  = $test_app->request( GET "/block/$test_file->{ufn}/2" );
+$json = from_json( $res->content );
+cmp_ok(
+    $json->{crcsum}, 'eq',
+    $test_file->{file_blocks}[2]{crcsum},
+    "Block should have same sum"
+);
 
-$res  = $test->request( GET "/delete/$test_file->{ufn}" );
+$res  = $test_app->request( GET "/delete/$test_file->{ufn}" );
 $json = from_json( $res->content );
 ok( !$json->{error}, "Delete should not error" );
 
-$res  = $test->request( GET "/delete/fake-ufn" );
+$res  = $test_app->request( GET "/delete/fake-ufn" );
 $json = from_json( $res->content );
 ok( $json->{error}, "Delete should error" );
 
