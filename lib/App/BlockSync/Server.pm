@@ -42,7 +42,7 @@ set serializer  => 'JSON';
 
 get '/' => sub {
     my @files = rset('File')->all();
-    return { error => 1, files => [ @files ] };
+    return { error => 1, files => [@files] };
 };
 
 get '/block-map/:ufn' => sub {
@@ -90,7 +90,7 @@ get '/delete/:ufn' => sub {
 
     if ($@) {
         warn $@;
-        return { success => 0, error => ( split( /\n/, $@ ) )[ 0 ] };
+        return { success => 0, error => ( split( /\n/, $@ ) )[0] };
     } else {
         return { success => 1, error => 0 };
     }
@@ -124,7 +124,7 @@ post '/new' => sub {
 
     if ($@) {
         warn $@;
-        return { success => 0, error => ( split( /\n/, $@ ) )[ 0 ] };
+        return { success => 0, error => ( split( /\n/, $@ ) )[0] };
     } else {
         return { success => 1, error => 0 };
     }
@@ -134,8 +134,6 @@ post '/new' => sub {
 post '/block' => sub {
     my $json = request->data;
     warn Dumper $json;
-    
-    
 
 };
 
