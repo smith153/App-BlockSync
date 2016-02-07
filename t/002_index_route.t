@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 
-use App::BlockSync;
+use App::BlockSync::Server;
 use Test::More tests => 2;
 use Plack::Test;
 use HTTP::Request::Common;
 
-my $app = App::BlockSync->to_app;
+my $app = App::BlockSync::Server->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 my $test = Plack::Test->create($app);
