@@ -35,16 +35,22 @@ __PACKAGE__->table("file_block");
   is_nullable: 0
   size: 64
 
+Unique file name that block belongs to
+
 =head2 id
 
   data_type: 'integer'
   is_nullable: 0
+
+File block number
 
 =head2 crcsum
 
   data_type: 'varchar'
   is_nullable: 0
   size: 64
+
+File block checksum
 
 =cut
 
@@ -89,8 +95,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-02-05 15:51:13
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+vkKk0zNVsl0x1+E74xMDA
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-02-07 19:02:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X7S4PfIZPjG6OTID5u7L1Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
