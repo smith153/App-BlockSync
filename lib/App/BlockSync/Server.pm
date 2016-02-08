@@ -99,6 +99,12 @@ get '/delete/:ufn' => sub {
 
 };
 
+=head2 POST new
+
+Route to handle posting new file with file block combo
+
+=cut
+
 post '/new' => sub {
     my $file = request->data;
     my $rs;
@@ -135,18 +141,33 @@ post '/new' => sub {
 
 };
 
+=head2 POST file
+
+Handle updating file meta data in DB only. Checks C<crcsum> as a last measure.
+
+=cut
+
 post '/file' => sub {
     my $file = request->data;
     warn Dumper $file;
+    my $sum = $file->{crcsum};
+
+    my $path = create_file_path( $file->{hostname}, $file->{uhn},
+        $file->{path}, $file->{filename} );
 
     my $rs;
-    eval { $rs = rset('File')->update($file); };
+    eval {
+
+        $file->{crcsum} = get_file_sum($path);
+        $file->{dirty}  = ( $file->{crcsum} ne $sum ) ? '1' : '0';
+        $rs             = rset('File')->find( $file->{ufn} )->update($file);
+    };
 
     if ($@) {
         warn $@;
-        return { success => 0, error => ( split( /\n/, $@ ) )[0] };
+        return { file => $rs, success => 0, error => ( split( /\n/, $@ ) )[0] };
     } else {
-        return { success => 1, error => 0 };
+        return { file => $rs, success => 1, error => 0 };
     }
 
 };
