@@ -120,7 +120,7 @@ post '/new' => sub {
             delete $block->{data};    #don't store to DB
         }
 
-        file_sum_compare( $path, $file->{crcsum} ) or die "Sum missmatch!";
+        die "Sum missmatch" if ( get_file_sum($path) ne $file->{crcsum} );
 
         #warn Dumper $file;
         rset('File')->create($file);
@@ -202,17 +202,17 @@ post '/block' => sub {
 
 };
 
-sub file_sum_compare
+sub get_file_sum
 {
-    my ( $file_path, $sum ) = @_;
-    my $md5 = Digest::MD5->new();
+    my $file_path = shift();
+    my $md5       = Digest::MD5->new();
     open( my $fh, "<$file_path" );
     binmode($fh);
 
     $md5->addfile($fh);
     close($fh);
 
-    return $md5->hexdigest() eq $sum;
+    return $md5->hexdigest();
 }
 
 sub file_shorten
