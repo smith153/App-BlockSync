@@ -55,15 +55,30 @@ sub new
 
 sub test_file
 {
-    my $self = shift();
-    return $self->{test_file};
+    my ($self,$new) = @_;
+    $self->{test_file} = $new if exists $new->{ufn};
+
+    #shallow copy and return
+    my $ref = { %{ $self->{test_file} } };
+    $ref->{file_blocks} =
+      [ @{ $self->{test_file}{file_blocks} } ];
+
+    return $ref;
+}
+
+sub test_app
+{
+    my ( $self, $app ) = @_;
+    $self->{test_app} = $app if $app;
+
+    return $self->{test_app};
 }
 
 sub blank_app
 {
     my $self = shift();
     my $app = App::BlockSync::Server->to_app || die "Couldn't get app!";
-    return Plack::Test->create($app);
+    return $self->test_app( Plack::Test->create($app) );
 }
 
 sub populated_app
@@ -90,8 +105,7 @@ sub populated_app
     my $i    = 0;
     my $size = $test_file->{block_size};
 
-    while ( $fh->read( $data, $size, $size * $i ) )
-    {    #read ( BUF, LEN, [OFFSET] )
+    while ( $fh->read( $data, $size ) ) {    #read ( BUF, LEN, [OFFSET] )
         my $block = {
             file   => $test_file->{ufn},
             id     => $i++,
@@ -111,6 +125,31 @@ sub populated_app
 
     $json = from_json( $res->content );
     die "Couldn't post file $json->{error} " if ( $json->{error} );
-    return $test;
+
+    $self->test_file($test_file);
+    return $self->test_app($test);
 }
 
+sub get_request
+{
+    my ( $self, $url ) = @_;
+    my $res;
+    die "No url" unless $url;
+
+    $res = $self->test_app()->request( GET $url );
+
+    return from_json( $res->content );
+}
+
+sub post_request
+{
+    my $self = shift();
+    my $url  = shift();
+    my %opts = @_;
+    my $res;
+    die "No url" unless $url;
+    $res = $self->test_app()->request( POST $url, %opts );
+    return from_json( $res->content );
+}
+
+1;
