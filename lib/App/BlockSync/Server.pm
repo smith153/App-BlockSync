@@ -118,6 +118,8 @@ post '/new' => sub {
             $file->{path},     $file->{filename}
         );
 
+        unlink $path if -f $path;
+
         foreach my $block ( @{ $file->{file_blocks} } ) {
 
             my $seek = $block->{id} * $block_size;
@@ -149,7 +151,6 @@ Handle updating file meta data in DB only. Checks C<crcsum> as a last measure.
 
 post '/file' => sub {
     my $file = request->data;
-    warn Dumper $file;
     my $sum = $file->{crcsum};
 
     my $path = create_file_path( $file->{hostname}, $file->{uhn},
@@ -172,9 +173,15 @@ post '/file' => sub {
 
 };
 
+=head2 POST block
+
+Handle updating a single block of a file
+
+=cut
+
+
 post '/block' => sub {
     my $file = request->data;
-    warn Dumper $file;
 
     my $rs;
     my $path;
@@ -260,7 +267,14 @@ sub create_file_path
 sub write_block
 {
     my ( $seek, $block, $compressed, $path ) = @_;
-    my $fh = IO::File->new("> $path");
+    my $fh = IO::File->new();
+    my $sum;
+
+    unless( -f $path ){
+        IO::File->new(">$path");
+    }
+
+    $fh->open($path, "+<");
     $fh->binmode();
 
     $block->{data} = decode_base64( $block->{data} );
@@ -269,7 +283,11 @@ sub write_block
         $block->{data} = uncompress( $block->{data} );
     }
 
-    $fh->setpos($seek);
+    if(md5_hex($block->{data}) ne $block->{crcsum}){
+        die "Block sum mismatch!";
+    }
+
+    $fh->seek( $seek , 0 );
     $fh->write( $block->{data} );
 
     $fh->close();
