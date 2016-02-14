@@ -49,13 +49,17 @@ our $test_file = {
 sub new
 {
     my ( $class, $args ) = @_;
+
+    foreach my $key ( keys %{ $args->{file_opts} } ) {
+        $test_file->{$key} = $args->{file_opts}{$key};
+    }
     my $ref = { test_file => $test_file, };
     return bless $ref, $class;
 }
 
 sub test_file
 {
-    my ($self,$new) = @_;
+    my ( $self, $new ) = @_;
     $self->{test_file} = $new if exists $new->{ufn};
 
     #shallow copy and return
@@ -110,8 +114,14 @@ sub populated_app
             file   => $test_file->{ufn},
             id     => $i++,
             crcsum => md5_hex($data),
-            data   => encode_base64( compress( $data, 1 ) ),
+            data   => $data,
         };
+        if ( $test_file->{compressed} ) {
+            $block->{data} = compress( $block->{data}, 1 );
+
+        }
+
+        $block->{data} = encode_base64( $block->{data} );
 
         push( @{ $test_file->{file_blocks} }, $block );
 
