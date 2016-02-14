@@ -160,6 +160,7 @@ post '/file' => sub {
     eval {
 
         $file->{crcsum} = get_file_sum($path);
+        $file->{file_size} = -s $path;
         $file->{dirty}  = ( $file->{crcsum} ne $sum ) ? '1' : '0';
         $rs             = rset('File')->find( $file->{ufn} )->update($file);
     };
